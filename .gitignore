@@ -1,0 +1,24 @@
+
+# Local dependencies, build output, credentials and runtime data
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pio/
+.vscode/
+*.code-workspace
+*.log
+*.map
+desktop.ini
+Thumbs.db
+.env
+.env.*
+!.env.example
+*.db
+*.sqlite*
+*.zip
+*.phar
+*.pem
+*.key
+*.pub
+/data/
