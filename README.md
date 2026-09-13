@@ -1,36 +1,47 @@
 # BMS BLE Reader
 
-Prosta aplikacja dla Windows/Pythona odczytujaca inteligentny akumulator BMC przez Bluetooth Low Energy.
+A Python command-line application for Windows that reads a smart battery's BMS over Bluetooth Low Energy.
 
-## Instalacja
+It decodes battery status, state of charge, temperatures, and individual cell voltages. The parser includes tests for complete and fragmented response frames.
 
-W PowerShell:
+## Installation
+
+Run these commands from the project directory in PowerShell:
 
 ```powershell
-cd "C:\Users\zieli\Downloads\OpenVTx-master\src\bms_ble_reader"
 python -m pip install -r requirements.txt
 ```
 
-Przed uruchomieniem wlacz Bluetooth i zamknij aplikacje BMS w telefonie, aby telefon nie zajmowal polaczenia.
+Enable Bluetooth and close the phone's BMS app before connecting, so it does not occupy the connection.
 
-## Uruchomienie
+## Usage
 
 ```powershell
 python app.py
 ```
 
-Program domyslnie szuka urzadzenia `HS030302BC26150127` lub adresu `8E:8A:C2:91:74:A2`.
+By default, the application searches for the device named `HS030302BC26150127` or address `8E:8A:C2:91:74:A2`. These defaults refer to the original test device; specify your own device as needed.
 
-Sam skan bez laczenia:
+Scan without connecting:
 
 ```powershell
 python app.py --scan-only
 ```
 
-Inne urzadzenie:
+Select another device:
 
 ```powershell
-python app.py --address "AA:BB:CC:DD:EE:FF" --name "fragment-nazwy"
+python app.py --address "AA:BB:CC:DD:EE:FF" --name "device-name-fragment"
 ```
 
-Po polaczeniu program wlacza powiadomienia na charakterystyce `00000003-0000-1000-8000-00805f9b34fb`. Biblioteka Bleak zapisuje wtedy `01 00` do deskryptora CCCD `0x2902`; aplikacja wykonuje tez jawny zapis dla zgodnosci z nietypowym GATT BMS-a. Nastepnie wysyla zapytania odczytowe `AA 21 00 21 00` i `AA 22 00 22 00`. Ramka odpowiedzi `0x21` zawiera stan naladowania oraz temperatury T1/otoczenia i MOS, a `0x22` napiecia cel.
+## Protocol
+
+After connecting, the program enables notifications on characteristic `00000003-0000-1000-8000-00805f9b34fb`. Bleak writes `01 00` to the CCCD descriptor `0x2902`; the application also performs an explicit write for compatibility with this BMS's unusual GATT implementation.
+
+It then sends read requests `AA 21 00 21 00` and `AA 22 00 22 00`. Response frame `0x21` contains battery status, state of charge, and T1/ambient and MOS temperatures. Frame `0x22` contains cell voltages.
+
+## Tests
+
+```powershell
+python -m unittest test_parser -v
+```
